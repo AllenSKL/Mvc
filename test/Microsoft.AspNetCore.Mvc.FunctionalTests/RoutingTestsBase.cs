@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 using Xunit;
@@ -18,12 +17,8 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
     {
         protected RoutingTestsBase(MvcTestFixture<TStartup> fixture)
         {
-            var factory = fixture.Factories.FirstOrDefault() ?? fixture.WithWebHostBuilder(ConfigureWebHostBuilder);
-            Client = factory.CreateDefaultClient();
+            Client = fixture.CreateDefaultClient();
         }
-
-        private static void ConfigureWebHostBuilder(IWebHostBuilder builder) =>
-            builder.UseStartup<TStartup>();
 
         public HttpClient Client { get; }
 
@@ -340,7 +335,7 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
             var response = await Client.SendAsync(new HttpRequestMessage(new HttpMethod("POST"), url));
 
             // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Equal(HttpStatusCode.MethodNotAllowed, response.StatusCode);
         }
 
         [Theory]
@@ -1017,26 +1012,6 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task ConventionalRoutedAction_InArea_StaysInArea()
-        {
-            // Arrange
-            var url = LinkFrom("http://localhost/Travel/Flight").To(new { action = "Contact", controller = "Home", });
-
-            // Act
-            var response = await Client.GetAsync(url);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var body = await response.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<RoutingResult>(body);
-
-            Assert.Equal("Flight", result.Controller);
-            Assert.Equal("Index", result.Action);
-
-            Assert.Equal("/Travel/Home/Contact", result.Link);
-        }
-
-        [Fact]
         public virtual async Task AttributeRoutedAction_LinkToArea()
         {
             // Arrange
@@ -1098,26 +1073,7 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
             Assert.Equal("/", result.Link);
         }
 
-        [Fact]
-        public virtual async Task AttributeRoutedAction_InArea_StaysInArea_ActionDoesntExist()
-        {
-            // Arrange
-            var url = LinkFrom("http://localhost/ContosoCorp/Trains")
-                .To(new { action = "Contact", controller = "Home", });
-
-            // Act
-            var response = await Client.GetAsync(url);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var body = await response.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<RoutingResult>(body);
-
-            Assert.Equal("Rail", result.Controller);
-            Assert.Equal("Index", result.Action);
-
-            Assert.Equal("/Travel/Home/Contact", result.Link);
-        }
+        
 
         [Fact]
         public virtual async Task AttributeRoutedAction_InArea_LinkToConventionalRoutedActionInArea()
@@ -1280,13 +1236,13 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
             Assert.Equal(actionName, result.Action);
         }
 
-        private static LinkBuilder LinkFrom(string url)
+        protected static LinkBuilder LinkFrom(string url)
         {
             return new LinkBuilder(url);
         }
 
         // See TestResponseGenerator in RoutingWebSite for the code that generates this data.
-        private class RoutingResult
+        protected class RoutingResult
         {
             public string[] ExpectedUrls { get; set; }
 
@@ -1303,7 +1259,7 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
             public string Link { get; set; }
         }
 
-        private class LinkBuilder
+        protected class LinkBuilder
         {
             public LinkBuilder(string url)
             {

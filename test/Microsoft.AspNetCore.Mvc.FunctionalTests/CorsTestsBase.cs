@@ -6,7 +6,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors.Infrastructure;
-using Microsoft.AspNetCore.Hosting;
 using Xunit;
 
 namespace Microsoft.AspNetCore.Mvc.FunctionalTests
@@ -15,12 +14,8 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
     {
         protected CorsTestsBase(MvcTestFixture<TStartup> fixture)
         {
-            var factory = fixture.Factories.FirstOrDefault() ?? fixture.WithWebHostBuilder(ConfigureWebHostBuilder);
-            Client = factory.CreateDefaultClient();
+            Client = fixture.CreateDefaultClient();
         }
-
-        private static void ConfigureWebHostBuilder(IWebHostBuilder builder) =>
-            builder.UseStartup<TStartup>();
 
         public HttpClient Client { get; }
 
@@ -94,7 +89,7 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
             var response = await Client.SendAsync(request);
 
             // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Equal(HttpStatusCode.MethodNotAllowed, response.StatusCode);
         }
 
         [Theory]

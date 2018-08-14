@@ -9,9 +9,9 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.Mvc.FunctionalTests
 {
-    public class CorsEndpointRoutingTests : CorsTestsBase<CorsWebSite.StartupWithEndpointRouting>
+    public class CorsEndpointRoutingTests : CorsTestsBase<CorsWebSite.StartupWith21Compat>
     {
-        public CorsEndpointRoutingTests(MvcTestFixture<CorsWebSite.StartupWithEndpointRouting> fixture)
+        public CorsEndpointRoutingTests(MvcTestFixture<CorsWebSite.StartupWith21Compat> fixture)
             : base(fixture)
         {
         }
