@@ -6,6 +6,7 @@ using System.Linq;
 using ApiExplorerWebSite.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,7 +38,8 @@ namespace ApiExplorerWebSite
                 options.OutputFormatters.Clear();
                 options.OutputFormatters.Add(jsonOutputFormatter);
                 options.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
-            });
+            })
+            .SetCompatibilityVersion(CompatibilityVersion.Latest);
 
             services.AddSingleton<ApiExplorerDataFilter>();
             services.AddSingleton<IActionDescriptorChangeProvider, ActionDescriptorChangeProvider>();
